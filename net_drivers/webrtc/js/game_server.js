@@ -29,24 +29,8 @@ function GameServer(signalingServer) {
     this.packets = []
     this.nextPeerId = 0;
     this.logger = loggerFactory.createLogger('GameServer')
-}
 
-GameServer.prototype.start = function(port) {
-    this.logger.info('Starting...')
-
-    return new Promise((resolve, reject) => {
-        this.signalingServer.onConnection = (connection) => { handleConnection(this, connection) }
-
-        this.signalingServer.start(port).then(() => {
-            this.logger.info('Started')
-
-            resolve()
-        }).catch((err) => {
-            this.logger.error('Failed to start: %s', err)
-
-            reject(err)
-        })
-    })
+    this.signalingServer.onConnection = (connection) => { handleConnection(this, connection) }
 }
 
 GameServer.prototype.send = function(packet, peerId) {
@@ -105,7 +89,7 @@ function handleConnection(gameServer, connection) {
     connection.onMessageReceived = (msg) => {
         gameServer.logger.info('Received signaling message for connection %s: %s', connection.id, msg)
 
-        peer.notifySignalingData(JSON.parse(msg))
+        peer.notifySignalingData(msg)
     }
 
     connection.onClosed = () => {

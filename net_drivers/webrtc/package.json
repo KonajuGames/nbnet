@@ -6,6 +6,7 @@
   "license": "MIT",
   "main": "js/index.js",
   "dependencies": {
+    "uuid": "^8.3.2",
     "websocket": "^1.0.31",
     "winston": "^3.2.1",
     "wrtc": "^0.4.2"

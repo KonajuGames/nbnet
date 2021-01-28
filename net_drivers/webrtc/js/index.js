@@ -26,5 +26,11 @@ module.exports = {
     Standalone: {
         SignalingServer: require('./standalone/signaling_server.js'),
         SignalingClient: require('./standalone/signaling_client.js')
-    }
+    },
+    Room: {
+        Host: require('./room/host.js'),
+        Client: require('./room/client.js'),
+        Server: require('./room/server.js')
+    },
+    LoggerFactory: require('./logger')
 }

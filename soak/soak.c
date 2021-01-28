@@ -53,23 +53,23 @@ int Soak_Init(int argc, char *argv[])
     if (Soak_ReadCommandLine(argc, argv) < 0)
         return -1;
 
-#ifdef NBN_GAME_CLIENT
+#ifdef SOAK_CLIENT
     NBN_GameClient_RegisterMessageWithDestructor(SOAK_MESSAGE, SoakMessage);
 #endif
 
-#ifdef NBN_GAME_SERVER
+#ifdef SOAK_SERVER
     NBN_GameServer_RegisterMessageWithDestructor(SOAK_MESSAGE, SoakMessage);
 #endif
 
     /* Packet simulator configuration */
-#ifdef NBN_GAME_CLIENT
+#ifdef SOAK_CLIENT
     NBN_GameClient_SetPing(soak_options.ping);
     NBN_GameClient_SetJitter(soak_options.jitter);
     NBN_GameClient_SetPacketLoss(soak_options.packet_loss);
     NBN_GameClient_SetPacketDuplication(soak_options.packet_duplication);
 #endif
 
-#ifdef NBN_GAME_SERVER
+#ifdef SOAK_SERVER
     NBN_GameServer_SetPing(soak_options.ping);
     NBN_GameServer_SetJitter(soak_options.jitter);
     NBN_GameServer_SetPacketLoss(soak_options.packet_loss);
@@ -99,7 +99,7 @@ void Soak_Deinit(void)
 
 int Soak_ReadCommandLine(int argc, char *argv[])
 {
-#ifdef NBN_GAME_CLIENT
+#ifdef SOAK_CLIENT
     if (argc < 2)
     {
         printf("Usage: client --message_count=<value> [--packet_loss=<value>] \
@@ -123,7 +123,7 @@ int Soak_ReadCommandLine(int argc, char *argv[])
     {
         switch (opt)
         {
-#ifdef NBN_GAME_CLIENT
+#ifdef SOAK_CLIENT
             case OPT_MESSAGES_COUNT:
                 soak_options.messages_count = atoi(optarg);
                 break;

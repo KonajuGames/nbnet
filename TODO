@@ -1,0 +1,23 @@
+- implement packet loss & packet duplication on packet simulator [OK]
+- limit send_queue size [OK]
+- fix ping calculation [OK]
+- recved message releasing [OK]
+- remove NBN_Timer [OK]
+- driver callbacks [OK]
+- soak: take send queue limit into account [OK]
+- bandwidth calculation [OK]
+- send more than one packet every flusha [OK]
+- fix soak tests [OK]
+- remove sdl net driver [OK]
+- packet loss calculation [OK]
+- float serialization [OK]
+- Deinit func [OK]
+- Add about portability in README [OK]
+- JS: refacto findPeerById method (use keys / peerId) [OK]
+- Add missing AcceptData* functions [OK]
+
+- Update README
+- Fix unit tests
+- JS: fix issue with non UTF8 string
+- Encrypt packets (diffie hellman)
+- Authentication
