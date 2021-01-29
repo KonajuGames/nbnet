@@ -57,12 +57,13 @@
 #define SOAK_MESSAGE 0
 #define SOAK_SEED time(NULL)
 #define SOAK_DONE 1
-#define SOAK_MAX_CLIENTS 4
+#define SOAK_MAX_CLIENTS 32
+#define SOAK_CLIENT_MAX_PENDING_MESSAGES 32 // max number of unacked messages at a time
 #define SOAK_SERVER_FULL_CODE 42
 
 typedef struct
 {
-    unsigned int messages_count;
+    unsigned int message_count;
     float packet_loss; /* 0 - 1 */
     float packet_duplication; /* 0 - 1 */
     float ping; /* in seconds */

@@ -54,11 +54,23 @@ int Soak_Init(int argc, char *argv[])
         return -1;
 
 #ifdef SOAK_CLIENT
+
+#ifdef SOAK_ENCRYPTION
+    NBN_GameClient_EnableEncryption();
+#endif
+
     NBN_GameClient_RegisterMessageWithDestructor(SOAK_MESSAGE, SoakMessage);
+
 #endif
 
 #ifdef SOAK_SERVER
+
+#ifdef SOAK_ENCRYPTION
+    NBN_GameServer_EnableEncryption();
+#endif
+
     NBN_GameServer_RegisterMessageWithDestructor(SOAK_MESSAGE, SoakMessage);
+
 #endif
 
     /* Packet simulator configuration */
@@ -112,7 +124,7 @@ int Soak_ReadCommandLine(int argc, char *argv[])
     int opt;
     int option_index;
     struct option long_options[] = {
-        { "messages_count", required_argument, NULL, OPT_MESSAGES_COUNT },
+        { "message_count", required_argument, NULL, OPT_MESSAGES_COUNT },
         { "packet_loss", required_argument, NULL, OPT_PACKET_LOSS },
         { "packet_duplication", required_argument, NULL, OPT_PACKET_DUPLICATION },
         { "ping", required_argument, NULL, OPT_PING },
@@ -125,7 +137,7 @@ int Soak_ReadCommandLine(int argc, char *argv[])
         {
 #ifdef SOAK_CLIENT
             case OPT_MESSAGES_COUNT:
-                soak_options.messages_count = atoi(optarg);
+                soak_options.message_count = atoi(optarg);
                 break;
 #endif
 
