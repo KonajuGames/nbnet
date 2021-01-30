@@ -35,3 +35,5 @@ To run the server:
 and to run the client:
 
 `npm run client "some message"`
+
+To enable packet encryption, define the `ENABLE_ENCRYPTION` macro by adding `-DENABLE_ENCRYPTION` to the previous emcc commands.

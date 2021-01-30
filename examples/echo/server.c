@@ -71,7 +71,7 @@ int main(void)
     // Init server with a protocol name and a port, must be done first
     NBN_GameServer_Init(ECHO_PROTOCOL_NAME, ECHO_EXAMPLE_PORT);
 
-#ifdef NBN_ENCRYPTION
+#ifdef ENABLE_ENCRYPTION
     NBN_GameServer_EnableEncryption();
 #endif
 
