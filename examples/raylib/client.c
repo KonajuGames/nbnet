@@ -512,7 +512,7 @@ int main(int argc, char *argv[])
     // and port
     NBN_GameClient_Init(RAYLIB_EXAMPLE_PROTOCOL_NAME, "127.0.0.1", RAYLIB_EXAMPLE_PORT);
 
-#ifdef EXAMPLE_ENCRYPTION
+#ifdef ENABLE_ENCRYPTION
     NBN_GameClient_EnableEncryption();
 #endif
 

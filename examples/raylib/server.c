@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
     // Init server with a protocol name and a port, must be done first
     NBN_GameServer_Init(RAYLIB_EXAMPLE_PROTOCOL_NAME, RAYLIB_EXAMPLE_PORT);
 
-#ifdef EXAMPLE_ENCRYPTION
+#ifdef ENABLE_ENCRYPTION
     NBN_GameServer_EnableEncryption();
 #endif
 

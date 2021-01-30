@@ -30,12 +30,14 @@ endif()
 target_compile_definitions(client PUBLIC NBN_DEBUG NBN_USE_PACKET_SIMULATOR)
 target_compile_definitions(server PUBLIC NBN_DEBUG NBN_USE_PACKET_SIMULATOR)
 
-if (ENCRYPTION_ENABLED)
+if (ENABLE_ENCRYPTION)
   message("Encryption enabled")
 
-  target_compile_definitions(client PUBLIC EXAMPLE_ENCRYPTION)
-  target_compile_definitions(server PUBLIC EXAMPLE_ENCRYPTION)
-endif(ENCRYPTION_ENABLED)
+  target_compile_definitions(client PUBLIC ENABLE_ENCRYPTION)
+  target_compile_definitions(server PUBLIC ENABLE_ENCRYPTION)
+endif(ENABLE_ENCRYPTION)
+
+unset(ENABLE_ENCRYPTION)
 
 if (EMSCRIPTEN)
     set(ASYNCIFY_IMPORTS "[\"__js_game_server_start\", \"__js_game_client_start\", \"__js_game_client_close\"]")

@@ -41,6 +41,8 @@ This example also demonstrates how to use the nbnet network conditions simulatio
 
 Information about the state of the connection will be displayed in the bottom right of the client window.
 
+To enable packet encryption, add `-DENABLE_ENCRYPTION=ON` to your cmake command line.
+
 ## Web
 
 To compile the example for the web:
