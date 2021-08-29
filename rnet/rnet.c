@@ -69,6 +69,8 @@ void FlushClient(void)
 
 ClientEvent PollClient(void)
 {
+    NBN_GameClient_AddTime(GetTime());
+
     int ev = NBN_GameClient_Poll();
 
     if (ev == NBN_ERROR)
@@ -77,6 +79,9 @@ ClientEvent PollClient(void)
 
         RNetAbort();
     }
+
+    if (ev == NBN_NO_EVENT)
+        return NO_EVENT;
 
     if (ev == NBN_CONNECTED)
         return CONNECTED;
@@ -182,6 +187,8 @@ void FlushServer(void)
 
 ServerEvent PollServer(void)
 {
+    NBN_GameServer_AddTime(GetTime());
+
     int ev = NBN_GameServer_Poll();
 
     if (ev == NBN_ERROR)
@@ -190,6 +197,9 @@ ServerEvent PollServer(void)
 
         RNetAbort();
     }
+
+    if (ev == NBN_NO_EVENT)
+        return NO_EVENT;
 
     if (ev == NBN_NEW_CONNECTION)
         return CLIENT_CONNECTION_REQUEST;

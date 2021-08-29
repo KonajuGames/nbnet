@@ -24,18 +24,20 @@
 
 typedef NBN_Connection Connection;
 
+#define NO_EVENT 0 // no event left to poll
+
 typedef enum
 {
-    CONNECTED,          // connection with the server has been established
-    DISCONNECTED,       // connection with the server bas been lost
-    MESSAGE_RECEIVED    // a message has been received from the server
+    CONNECTED = 1,          // connection with the server has been established
+    DISCONNECTED,           // connection with the server bas been lost
+    MESSAGE_RECEIVED        // a message has been received from the server
 } ClientEvent;
 
 typedef enum
 {
-    CLIENT_CONNECTION_REQUEST,  //  a new client has requested a connection
-    CLIENT_DISCONNECTED,        //  a client has disconnected
-    CLIENT_MESSAGE_RECEIVED     //  a message has been received from a client
+    CLIENT_CONNECTION_REQUEST = 1,  //  a new client has requested a connection
+    CLIENT_DISCONNECTED,            //  a client has disconnected
+    CLIENT_MESSAGE_RECEIVED         //  a message has been received from a client
 } ServerEvent;
 
 typedef struct
