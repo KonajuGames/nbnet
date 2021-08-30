@@ -43,7 +43,7 @@ typedef enum
 typedef struct
 {
     Connection *sender; // NULL when coming from the server
-    uint8_t *bytes;
+    uint8_t bytes[NBN_BYTE_ARRAY_MAX_SIZE];
     unsigned int length;
 } Message;
 

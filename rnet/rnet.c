@@ -255,7 +255,7 @@ Connection *GetDisconnectedClient(void)
 
 void ReadReceivedClientMessage(Message *msg)
 {
-    NBN_MessageInfo msg_info = NBN_GameClient_GetMessageInfo();
+    NBN_MessageInfo msg_info = NBN_GameServer_GetMessageInfo();
 
     RNetAssert(msg_info.type == NBN_BYTE_ARRAY_MESSAGE_TYPE);
 
