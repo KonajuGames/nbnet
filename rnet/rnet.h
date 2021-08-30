@@ -69,6 +69,9 @@ void FlushClient(void);
 // Poll client network events
 ClientEvent PollClient(void);
 
+// Read the last received message from the server
+void ReadReceivedServerMessage(Message *msg);
+
 /*******************************/
 /*          Server API         */
 /*******************************/
@@ -106,11 +109,7 @@ void RejectClient(void);
 // Return the last disconnected client
 Connection *GetDisconnectedClient(void);
 
-/*******************************/
-/*          Common API         */
-/*******************************/
-
-// Return the last received message
-Message *GetReceivedMessage(void);
+// Read the last received message from a client
+void ReadReceivedClientMessage(Message *msg);
 
 #endif // RNET_H

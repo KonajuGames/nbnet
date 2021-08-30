@@ -13,7 +13,6 @@
 #endif
 
 static NBN_OutgoingMessage *CreateOutgoingMessage(uint8_t *bytes, unsigned int length);
-static Message received_message;
 
 /*******************************/
 /*          Client API         */
@@ -69,7 +68,7 @@ void FlushClient(void)
 
 ClientEvent PollClient(void)
 {
-    NBN_GameClient_AddTime(GetTime());
+    NBN_GameClient_AddTime(GetTime()); // FIXME: this is called multiple times per frame
 
     int ev = NBN_GameClient_Poll();
 
@@ -90,23 +89,27 @@ ClientEvent PollClient(void)
         return DISCONNECTED;
 
     if (ev == NBN_MESSAGE_RECEIVED)
-    {
-        NBN_MessageInfo msg_info = NBN_GameClient_GetMessageInfo();
-
-        RNetAssert(msg_info.type == NBN_BYTE_ARRAY_MESSAGE_TYPE);
-
-        NBN_ByteArrayMessage *msg = msg_info.data;
-
-        received_message = (Message){.sender = NULL, .bytes = msg->bytes, .length = msg->length};
-
         return MESSAGE_RECEIVED;
-    }
 
     TraceLog(LOG_ERROR, "Unsupported client network event");
 
     RNetAbort();
 
     return NBN_ERROR;
+}
+
+void ReadReceivedServerMessage(Message *msg)
+{
+    NBN_MessageInfo msg_info = NBN_GameClient_GetMessageInfo();
+
+    RNetAssert(msg_info.type == NBN_BYTE_ARRAY_MESSAGE_TYPE);
+
+    NBN_ByteArrayMessage *b_arr_msg = msg_info.data;
+
+    memcpy(msg->bytes, b_arr_msg->bytes, b_arr_msg->length);
+
+    msg->length = b_arr_msg->length;
+    msg->sender = NULL;
 }
 
 /*******************************/
@@ -187,7 +190,7 @@ void FlushServer(void)
 
 ServerEvent PollServer(void)
 {
-    NBN_GameServer_AddTime(GetTime());
+    NBN_GameServer_AddTime(GetTime()); // FIXME: this is called multiple times per frame
 
     int ev = NBN_GameServer_Poll();
 
@@ -208,17 +211,7 @@ ServerEvent PollServer(void)
         return CLIENT_DISCONNECTED;
 
     if (ev == NBN_CLIENT_MESSAGE_RECEIVED)
-    {
-        NBN_MessageInfo msg_info = NBN_GameServer_GetMessageInfo();
-
-        RNetAssert(msg_info.type == NBN_BYTE_ARRAY_MESSAGE_TYPE);
-
-        NBN_ByteArrayMessage *msg = msg_info.data;
-
-        received_message = (Message){.sender = msg_info.sender, .bytes = msg->bytes, .length = msg->length};
-
         return CLIENT_MESSAGE_RECEIVED;
-    }
 
     TraceLog(LOG_ERROR, "Unsupported server network event");
 
@@ -254,13 +247,18 @@ Connection *GetDisconnectedClient(void)
     return NBN_GameServer_GetDisconnectedClient();
 }
 
-/*******************************/
-/*          Common API         */
-/*******************************/
-
-Message *GetReceivedMessage(void)
+void ReadReceivedClientMessage(Message *msg)
 {
-    return &received_message;
+    NBN_MessageInfo msg_info = NBN_GameClient_GetMessageInfo();
+
+    RNetAssert(msg_info.type == NBN_BYTE_ARRAY_MESSAGE_TYPE);
+
+    NBN_ByteArrayMessage *b_arr_msg = msg_info.data;
+
+    memcpy(msg->bytes, b_arr_msg->bytes, b_arr_msg->length);
+
+    msg->length = b_arr_msg->length;
+    msg->sender = msg_info.sender;
 }
 
 /*******************************/
