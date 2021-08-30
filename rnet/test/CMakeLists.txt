@@ -15,6 +15,11 @@ add_compile_options(-Wall -Wextra -Werror)
 target_compile_definitions(client PUBLIC NBN_DEBUG)
 target_compile_definitions(server PUBLIC NBN_DEBUG)
 
+if (APPLE)
+  target_link_libraries(client "-framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework CoreVideo")
+  target_link_libraries(server "-framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework CoreVideo")
+endif (APPLE)
+
 if(WIN32)
     target_link_libraries(client wsock32 ws2_32)
     target_link_libraries(server wsock32 ws2_32)
