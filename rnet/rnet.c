@@ -36,6 +36,11 @@ void StopClient(void)
     NBN_GameClient_Deinit();
 }
 
+void AddClientTime(double secs)
+{
+    NBN_GameClient_AddTime(secs);
+}
+
 void SendUnreliableMessage(uint8_t *bytes, unsigned int length)
 {
     if (NBN_GameClient_SendUnreliableMessage(CreateOutgoingMessage(bytes, length)) == NBN_ERROR)
@@ -68,8 +73,6 @@ void FlushClient(void)
 
 ClientEvent PollClient(void)
 {
-    NBN_GameClient_AddTime(GetTime()); // FIXME: this is called multiple times per frame
-
     int ev = NBN_GameClient_Poll();
 
     if (ev == NBN_ERROR)
@@ -134,6 +137,11 @@ void StopServer(void)
     NBN_GameServer_Deinit();
 }
 
+void AddServerTime(double secs)
+{
+    NBN_GameServer_AddTime(secs);
+}
+
 void SendUnreliableMessageTo(uint8_t *bytes, unsigned int length, Connection *client)
 {
     if (NBN_GameServer_SendUnreliableMessageTo(client, CreateOutgoingMessage(bytes, length)) == NBN_ERROR)
@@ -190,8 +198,6 @@ void FlushServer(void)
 
 ServerEvent PollServer(void)
 {
-    NBN_GameServer_AddTime(GetTime()); // FIXME: this is called multiple times per frame
-
     int ev = NBN_GameServer_Poll();
 
     if (ev == NBN_ERROR)

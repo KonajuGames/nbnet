@@ -57,6 +57,10 @@ void StartClient(const char *protocol_name, const char *ip_address, uint16_t por
 // Stop the client and release memory
 void StopClient(void);
 
+// Add time (in seconds) to the internal client's clock
+// Call this function every client tick
+void AddClientTime(double secs);
+
 // Send bytes to the server (unreliably)
 void SendUnreliableMessage(uint8_t *bytes, unsigned int length);
 
@@ -81,6 +85,10 @@ void StartServer(const char *protocol_name, uint16_t port);
 
 // Stop the server and release memory
 void StopServer(void);
+
+// Add time (in seconds) to the internal server's clock
+// Call this function every server tick
+void AddServerTime(double secs);
 
 // Send bytes to a connected client (unreliably)
 void SendUnreliableMessageTo(uint8_t *bytes, unsigned int length, Connection *client);
