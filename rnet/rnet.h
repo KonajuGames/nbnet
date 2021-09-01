@@ -22,8 +22,6 @@
 
 #include "../nbnet.h"
 
-typedef NBN_Connection Connection;
-
 #define NO_EVENT 0 // no event left to poll
 
 typedef enum
@@ -42,7 +40,7 @@ typedef enum
 
 typedef struct
 {
-    Connection *sender; // NULL when coming from the server
+    uint32_t sender_id; // not set when coming from the server
     uint8_t bytes[NBN_BYTE_ARRAY_MAX_SIZE];
     unsigned int length;
 } Message;
@@ -91,10 +89,10 @@ void StopServer(void);
 void AddServerTime(double secs);
 
 // Send bytes to a connected client (unreliably)
-void SendUnreliableMessageTo(uint8_t *bytes, unsigned int length, Connection *client);
+void SendUnreliableMessageTo(uint8_t *bytes, unsigned int length, uint32_t client_id);
 
 // Send bytes to a connected client (reliably)
-void SendReliableMessageTo(uint8_t *bytes, unsigned int length, Connection *client);
+void SendReliableMessageTo(uint8_t *bytes, unsigned int length, uint32_t client_id);
 
 // Broadcast bytes to all connected clients (unreliably)
 void BroadcastUnreliableMessage(uint8_t *bytes, unsigned int length);
@@ -109,13 +107,13 @@ void FlushServer(void);
 ServerEvent PollServer(void);
 
 // Accept the pending connection request
-Connection *AcceptClient(void);
+uint32_t AcceptClient(void);
 
 // Reject the pending connection request
 void RejectClient(void);
 
 // Return the last disconnected client
-Connection *GetDisconnectedClient(void);
+uint32_t GetDisconnectedClientID(void);
 
 // Read the last received message from a client
 void ReadReceivedClientMessage(Message *msg);

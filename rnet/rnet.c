@@ -14,6 +14,8 @@
 
 static NBN_OutgoingMessage *CreateOutgoingMessage(uint8_t *bytes, unsigned int length);
 
+static uint32_t last_disconnected_client_id;
+
 /*******************************/
 /*          Client API         */
 /*******************************/
@@ -112,7 +114,6 @@ void ReadReceivedServerMessage(Message *msg)
     memcpy(msg->bytes, b_arr_msg->bytes, b_arr_msg->length);
 
     msg->length = b_arr_msg->length;
-    msg->sender = NULL;
 }
 
 /*******************************/
@@ -142,8 +143,18 @@ void AddServerTime(double secs)
     NBN_GameServer_AddTime(secs);
 }
 
-void SendUnreliableMessageTo(uint8_t *bytes, unsigned int length, Connection *client)
+void SendUnreliableMessageTo(uint8_t *bytes, unsigned int length, uint32_t client_id)
 {
+    NBN_Connection *client = NBN_GameServer_FindClientById(client_id);
+
+    if (!client)
+    {
+        TraceLog(LOG_ERROR, "Failed to send unreliable message to server: client %d does not exist",
+            client_id);
+
+        RNetAbort();
+    }
+
     if (NBN_GameServer_SendUnreliableMessageTo(client, CreateOutgoingMessage(bytes, length)) == NBN_ERROR)
     {
         TraceLog(LOG_ERROR, "Failed to send unreliable message to server");
@@ -152,8 +163,18 @@ void SendUnreliableMessageTo(uint8_t *bytes, unsigned int length, Connection *cl
     }
 }
 
-void SendReliableMessageTo(uint8_t *bytes, unsigned int length, Connection *client)
+void SendReliableMessageTo(uint8_t *bytes, unsigned int length, uint32_t client_id)
 {
+    NBN_Connection *client = NBN_GameServer_FindClientById(client_id);
+
+    if (!client)
+    {
+        TraceLog(LOG_ERROR, "Failed to send unreliable message to server: client %d does not exist",
+            client_id);
+
+        RNetAbort();
+    }
+
     if (NBN_GameServer_SendReliableMessageTo(client, CreateOutgoingMessage(bytes, length)) == NBN_ERROR)
     {
         TraceLog(LOG_ERROR, "Failed to send unreliable message to server");
@@ -214,7 +235,15 @@ ServerEvent PollServer(void)
         return CLIENT_CONNECTION_REQUEST;
 
     if (ev == NBN_CLIENT_DISCONNECTED)
+    {
+        NBN_Connection *cli = NBN_GameServer_GetDisconnectedClient();
+
+        last_disconnected_client_id = cli->id;
+
+        NBN_Connection_Destroy(cli);
+
         return CLIENT_DISCONNECTED;
+    }
 
     if (ev == NBN_CLIENT_MESSAGE_RECEIVED)
         return CLIENT_MESSAGE_RECEIVED;
@@ -226,7 +255,7 @@ ServerEvent PollServer(void)
     return NBN_ERROR;
 }
 
-Connection *AcceptClient(void)
+uint32_t AcceptClient(void)
 {
     if (NBN_GameServer_AcceptIncomingConnection(NULL) == NBN_ERROR)
     {
@@ -235,7 +264,7 @@ Connection *AcceptClient(void)
         RNetAbort();
     }
 
-    return NBN_GameServer_GetIncomingConnection();
+    return NBN_GameServer_GetIncomingConnection()->id;
 }
 
 void RejectClient(void)
@@ -248,9 +277,9 @@ void RejectClient(void)
     }
 }
 
-Connection *GetDisconnectedClient(void)
+uint32_t GetDisconnectedClientID(void)
 {
-    return NBN_GameServer_GetDisconnectedClient();
+    return last_disconnected_client_id;
 }
 
 void ReadReceivedClientMessage(Message *msg)
@@ -264,7 +293,7 @@ void ReadReceivedClientMessage(Message *msg)
     memcpy(msg->bytes, b_arr_msg->bytes, b_arr_msg->length);
 
     msg->length = b_arr_msg->length;
-    msg->sender = msg_info.sender;
+    msg->sender_id = msg_info.sender->id;
 }
 
 /*******************************/
