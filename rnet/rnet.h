@@ -55,6 +55,9 @@ void StartClient(const char *protocol_name, const char *ip_address, uint16_t por
 // Stop the client and release memory
 void StopClient(void);
 
+// Disconnect the client
+void DisconnectClient(void);
+
 // Add time (in seconds) to the internal client's clock
 // Call this function every client tick
 void AddClientTime(double secs);

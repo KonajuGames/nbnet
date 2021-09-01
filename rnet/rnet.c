@@ -38,6 +38,11 @@ void StopClient(void)
     NBN_GameClient_Deinit();
 }
 
+void DisconnectClient(void)
+{
+    NBN_GameClient_Disconnect();
+}
+
 void AddClientTime(double secs)
 {
     NBN_GameClient_AddTime(secs);
