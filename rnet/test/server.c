@@ -25,13 +25,13 @@ int main(void)
         {
             if (ev == CLIENT_CONNECTION_REQUEST)
             {
-                Connection *conn = AcceptClient();
+                uint32_t client_id = AcceptClient();
 
-                TraceLog(LOG_INFO, "Client connected (ID: %d)", conn->id);
+                TraceLog(LOG_INFO, "Client connected (ID: %d)", client_id);
             }
             else if (ev == CLIENT_DISCONNECTED)
             {
-                TraceLog(LOG_INFO, "Client disconnected (ID: %d)", GetDisconnectedClient()->id);
+                TraceLog(LOG_INFO, "Client disconnected (ID: %d)", GetDisconnectedClientID());
             }
             else if (ev == CLIENT_MESSAGE_RECEIVED)
             {
@@ -40,7 +40,7 @@ int main(void)
                 ReadReceivedClientMessage(&msg);
 
                 TraceLog(LOG_INFO, "Received data: %s (length: %d) from client %d",
-                    msg.bytes, msg.length, msg.sender->id);
+                    msg.bytes, msg.length, msg.sender_id);
             }
         }
 

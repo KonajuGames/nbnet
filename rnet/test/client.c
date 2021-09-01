@@ -42,6 +42,7 @@ int main(void)
         EndDrawing();
     }
 
+    DisconnectClient();
     StopClient();
 
     return 0;
