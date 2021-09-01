@@ -2,11 +2,13 @@
 
 #include "rnet.h"
 
-#if PLATFORM==PLATFORM_DESKTOP
+#ifdef PLATFORM_DESKTOP
 
 #include "../net_drivers/udp.h"
 
-#elif PLATFORM==PLATFORM_WEB
+#endif
+
+#ifdef PLATFORM_WEB
 
 #include "../net_drivers/webrtc.h"
 
