@@ -23,9 +23,6 @@ freely, subject to the following restrictions:
 // --- Game server API ---
 
 mergeInto(LibraryManager.library, {
-    __js_game_server_send_packet_to__proxy: 'sync',
-    __js_game_server_dequeue_packet__proxy: 'sync', 
-
     __js_game_server_init: function (protocol_id, use_https, key_pem, cert_pem) {
         const nbnet = require('nbnet')
 
@@ -45,48 +42,12 @@ mergeInto(LibraryManager.library, {
                 wakeUp(-1)
             })
         })
-    },
-
-    __js_game_server_dequeue_packet: function(peerIdPtr, lenPtr) {
-        const packet = this.gameServer.packets.shift()
-
-        if (packet) {
-	    const packetData = packet[0]
-            const packetSenderId = packet[1]
-            const ptr = stackAlloc(packetData.byteLength)
-            const byteArray = new Uint8Array(packetData)
-
-            setValue(peerIdPtr, packetSenderId, 'i32')
-            setValue(lenPtr, packetData.byteLength, 'i32')
-            writeArrayToMemory(byteArray, ptr)
-
-            return ptr
-        } else {
-            return null
-        }
-    },
-
-    __js_game_server_send_packet_to: function (packetPtr, packetSize, peerId) {
-        const data = new Uint8Array(Module.HEAPU8.subarray(packetPtr, packetPtr + packetSize))
-
-        this.gameServer.send(data, peerId)
-    },
-
-    __js_game_server_close_client_peer: function(peerId) {
-        this.gameServer.closePeer(peerId)
-    },
-
-    __js_game_server_stop: function() {
-        this.gameServer.stop()
     }
 })
 
 // --- Game client API ---
 
 mergeInto(LibraryManager.library, {
-    __js_game_client_send_packet__proxy: 'sync',
-    __js_game_client_dequeue_packet__proxy: 'sync',
-
     __js_game_client_init: function(protocol_id, use_https) {
         let nbnet
 
@@ -111,33 +72,5 @@ mergeInto(LibraryManager.library, {
                 wakeUp(-1)
             })
         })
-    },
-
-    __js_game_client_dequeue_packet: function(lenPtr) {
-        const packet = this.gameClient.packets.shift()
-
-        if (packet) {
-            const ptr = stackAlloc(packet.byteLength)
-            const byteArray = new Uint8Array(packet)
-
-            setValue(lenPtr, packet.byteLength, 'i32')
-            writeArrayToMemory(byteArray, ptr)
-
-            return ptr
-        } else {
-            return null
-        }
-    },
-
-    __js_game_client_send_packet: function (packetPtr, packetSize) {
-        const data = new Uint8Array(Module.HEAPU8.subarray(packetPtr, packetPtr + packetSize))
-
-        this.gameClient.send(data)
-    },
-
-    __js_game_client_close: function() {
-        Asyncify.handleSleep(function (wakeUp) {
-            this.gameClient.close().then(wakeUp).catch(wakeUp)
-        });
     }
 })
