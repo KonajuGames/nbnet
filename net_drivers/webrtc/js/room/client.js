@@ -29,7 +29,7 @@ function Client(protocol, roomId) {
     this.connected = false
 }
 
-Client.prototype.connect = function(host, port) {
+Client.prototype.connect = function (host, port) {
     return new Promise((resolve, reject) => {
         const uri = `ws://${host}:${port}`
 
@@ -41,11 +41,11 @@ Client.prototype.connect = function(host, port) {
 
         this.ws.onclose = (ev) => {
             if (this.connected) {
-                this.logger.error('Connection closed')
+                this.logger.info('Connection closed')
 
                 this.connected = false
 
-                this.onClosed()
+                // this.onClosed()
             } else {
                 this.logger.error('Connection failed')
 
@@ -60,7 +60,7 @@ Client.prototype.connect = function(host, port) {
 
             // Request to join a room
             this.ws.send(JSON.stringify({ type: 'join_room', room_id: this.roomId }))
-            
+
             clearTimeout(timeoutId)
         }
 
@@ -69,28 +69,24 @@ Client.prototype.connect = function(host, port) {
 
             const msg = JSON.parse(ev.data)
 
-            if (msg['type'] == 'join_room')
-            {
-	        if (msg['status'] == 'ok')
-		{
+            if (msg['type'] == 'join_room') {
+                if (msg['status'] == 'ok') {
                     this.logger.info('Joined room: %s', this.roomId)
 
-		    this.ws.onmessage = (ev) => { handleRoomMessage(this, ev.data) }
+                    this.ws.onmessage = (ev) => { handleRoomMessage(this, ev.data) }
                     resolve()
-		}
-		else
-		{
+                }
+                else {
                     this.logger.error('Failed to join room')
 
-		    reject()
-		}
-	    }
-	    else
-	    {
+                    reject()
+                }
+            }
+            else {
                 this.logger.error('Received an unexpected message')
 
-		reject()
-	    }
+                reject()
+            }
         }
 
         const timeoutId = setTimeout(() => {
@@ -101,7 +97,7 @@ Client.prototype.connect = function(host, port) {
     })
 }
 
-Client.prototype.send = function(data) {
+Client.prototype.send = function (data) {
     this.logger.info('Send signaling data: %s (roomId: %s)', data, this.roomId)
 
     this.ws.send(JSON.stringify({ type: 'client_signaling', data: data }))
@@ -111,7 +107,7 @@ function handleRoomMessage(client, data) {
     const msg = JSON.parse(ev.data)
 
     if (msg['type'] == 'signaling') {
-       client.onDataReceived(msg['data']) 
+        client.onDataReceived(msg['data'])
     }
 }
 

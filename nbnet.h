@@ -25,6 +25,10 @@
 #ifndef NBNET_H
 #define NBNET_H
 
+#if defined(NBN_ROOMS) && !defined(__EMSCRIPTEN__)
+#error "The nbnet room feature is only available when compiling with emscripten"
+#endif
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -727,7 +731,12 @@ NBN_ReliableOrderedChannel *NBN_ReliableOrderedChannel_Create(void);
 
 typedef struct
 {
+#ifdef NBN_ROOMS
+    const char *room_id;
+#else
     const char *protocol_name;
+#endif
+
     const char *ip_address;
     uint16_t port;
     bool is_encryption_enabled;
@@ -1154,7 +1163,12 @@ typedef enum
     NBN_DRIVER_GCLI_SERVER_PACKET_RECEIVED
 } NBN_Driver_GCli_EventType;
 
+#ifdef NBN_ROOMS
+int NBN_Driver_GCli_Start(const char *, const char *, uint16_t);
+#else
 int NBN_Driver_GCli_Start(uint32_t, const char *, uint16_t);
+#endif
+
 void NBN_Driver_GCli_Stop(void);
 int NBN_Driver_GCli_RecvPackets(void);
 int NBN_Driver_GCli_SendPacket(NBN_Packet *);
@@ -1170,7 +1184,12 @@ typedef enum
     NBN_DRIVER_GSERV_CLIENT_PACKET_RECEIVED
 } NBN_Driver_GServ_EventType;
 
+#ifdef NBN_ROOMS
+int NBN_Driver_GServ_Start(const char *, uint16_t);
+#else
 int NBN_Driver_GServ_Start(uint32_t, uint16_t);
+#endif
+
 void NBN_Driver_GServ_Stop(void);
 int NBN_Driver_GServ_RecvPackets(void);
 void NBN_Driver_GServ_DestroyClientConnection(NBN_Connection *);
@@ -3642,8 +3661,12 @@ void NBN_Endpoint_RegisterChannel(NBN_Endpoint *endpoint, NBN_ChannelType type, 
 
 NBN_Connection *NBN_Endpoint_CreateConnection(NBN_Endpoint *endpoint, uint32_t id, void *driver_data)
 {
+#ifdef NBN_ROOMS
+    NBN_Connection *connection = NBN_Connection_Create(id, 0, driver_data, endpoint);
+#else
     NBN_Connection *connection = NBN_Connection_Create(
-            id, Endpoint_BuildProtocolId(endpoint->config.protocol_name), driver_data, endpoint);
+        id, Endpoint_BuildProtocolId(endpoint->config.protocol_name), driver_data, endpoint);
+#endif
 
     for (int chan_id = 0; chan_id < NBN_MAX_CHANNELS; chan_id++)
     {
@@ -3849,13 +3872,21 @@ static int GameClient_HandleMessageReceivedEvent(void);
 static int GameClient_SendCryptoPublicInfo(void);
 static void GameClient_StartEncryption(void);
 
+#ifdef NBN_ROOMS
+void NBN_GameClient_Init(const char *room_id, const char *ip_address, uint16_t port)
+#else
 void NBN_GameClient_Init(const char *protocol_name, const char *ip_address, uint16_t port)
+#endif
 {
     NBN_Config config = {
-        protocol_name,
-        ip_address,
-        port,
-        false
+#ifdef NBN_ROOMS
+        .room_id = room_id,
+#else
+        .protocol_name = protocol_name,
+#endif
+        .ip_address = ip_address,
+        .port = port,
+        .is_encryption_enabled = false
     };
 
     NBN_Endpoint_Init(&__game_client.endpoint, config, false);
@@ -3876,7 +3907,11 @@ int NBN_GameClient_Start(void)
 {
     NBN_Config config = __game_client.endpoint.config;
 
+#ifdef NBN_ROOMS
+    if (NBN_Driver_GCli_Start(config.room_id, config.ip_address, config.port) < 0)
+#else
     if (NBN_Driver_GCli_Start(Endpoint_BuildProtocolId(config.protocol_name), config.ip_address, config.port) < 0)
+#endif
         return NBN_ERROR;
 
     NBN_LogInfo("Started");
@@ -4352,9 +4387,17 @@ static int GameServer_HandleMessageReceivedEvent(void);
 static int GameServer_SendCryptoPublicInfoTo(NBN_Connection *);
 static int GameServer_StartEncryption(NBN_Connection *);
 
+#ifdef NBN_ROOMS
+void NBN_GameServer_Init(const char *ip_address, uint16_t port)
+#else
 void NBN_GameServer_Init(const char *protocol_name, uint16_t port)
+#endif
 {
+#ifdef NBN_ROOMS
+    NBN_Config config = { NULL, ip_address, port, false };
+#else
     NBN_Config config = { protocol_name, NULL, port, false };
+#endif
 
     NBN_Endpoint_Init(&__game_server.endpoint, config, true);
 
@@ -4381,7 +4424,11 @@ int NBN_GameServer_Start(void)
 {
     NBN_Config config = __game_server.endpoint.config;
 
+#ifdef NBN_ROOMS
+    if (NBN_Driver_GServ_Start(config.ip_address, config.port) < 0)
+#else
     if (NBN_Driver_GServ_Start(Endpoint_BuildProtocolId(config.protocol_name), config.port) < 0)
+#endif
     {
         NBN_LogError("Failed to start network driver");
 

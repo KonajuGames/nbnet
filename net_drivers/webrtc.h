@@ -46,8 +46,18 @@ freely, subject to the following restrictions:
 
 /* --- JS API --- */
 
+#ifdef NBN_ROOMS
+NBN_EXTERN void __js_game_server_init(void);
+#else
 NBN_EXTERN void __js_game_server_init(uint32_t, bool, const char *, const char *);
+#endif
+
+#ifdef NBN_ROOMS
+NBN_EXTERN int __js_game_server_start(const char *, uint16_t);
+#else
 NBN_EXTERN int __js_game_server_start(uint16_t);
+#endif
+
 NBN_EXTERN uint8_t *__js_game_server_dequeue_packet(uint32_t *, unsigned int *);
 NBN_EXTERN int __js_game_server_send_packet_to(uint8_t *, unsigned int, uint32_t);
 NBN_EXTERN void __js_game_server_close_client_peer(unsigned int);
@@ -55,7 +65,11 @@ NBN_EXTERN void __js_game_server_stop(void);
 
 /* --- Driver implementation --- */
 
+#ifdef NBN_ROOMS
+int NBN_Driver_GServ_Start(const char *host, uint16_t port)
+#else
 int NBN_Driver_GServ_Start(uint32_t protocol_id, uint16_t port)
+#endif
 {
 #ifdef NBN_USE_HTTPS
 
@@ -66,12 +80,28 @@ int NBN_Driver_GServ_Start(uint32_t protocol_id, uint16_t port)
 #ifndef NBN_HTTPS_CERT_PEM
 #define NBN_HTTPS_CERT_PEM "cert.pem"
 #endif
+
+#ifdef NBN_ROOMS
+    __js_game_server_init();
+#else
     __js_game_server_init(protocol_id, true, NBN_HTTPS_KEY_PEM, NBN_HTTPS_CERT_PEM);
+#endif // NBN_ROOMS
+
+#else
+
+#ifdef NBN_ROOMS
+    __js_game_server_init();
 #else
     __js_game_server_init(protocol_id, false, NULL, NULL);
+#endif // NBN_ROOMS
+
 #endif // NBN_USE_HTTPS
     
+#ifdef NBN_ROOMS
+    if (__js_game_server_start(host, port) < 0)
+#else
     if (__js_game_server_start(port) < 0)
+#endif
         return -1;
 
     return 0;
@@ -130,7 +160,12 @@ int NBN_Driver_GServ_SendPacketTo(NBN_Packet *packet, NBN_Connection *conn)
 
 /* --- JS API --- */
 
+#ifdef NBN_ROOMS
+NBN_EXTERN void __js_game_client_init(const char *);
+#else
 NBN_EXTERN void __js_game_client_init(uint32_t, bool);
+#endif
+
 NBN_EXTERN int __js_game_client_start(const char *, uint16_t);
 NBN_EXTERN uint8_t *__js_game_client_dequeue_packet(unsigned int *);
 NBN_EXTERN int __js_game_client_send_packet(uint8_t *, unsigned int);
@@ -141,12 +176,28 @@ NBN_EXTERN void __js_game_client_close(void);
 static NBN_Connection *server = NULL;
 static bool is_connected_to_server = false;
 
+#ifdef NBN_ROOMS
+int NBN_Driver_GCli_Start(const char *room_id, const char *host, uint16_t port)
+#else
 int NBN_Driver_GCli_Start(uint32_t protocol_id, const char *host, uint16_t port)
+#endif
 {
 #ifdef NBN_USE_HTTPS
+
+#ifdef NBN_ROOMS
+    __js_game_client_init(room_id);
+#else
     __js_game_client_init(protocol_id, true);
+#endif // NBN_ROOMS
+
+#else
+
+#ifdef NBN_ROOMS
+    __js_game_client_init(room_id);
 #else
     __js_game_client_init(protocol_id, false);
+#endif // NBN_ROOMS
+
 #endif // NBN_USE_HTTPS
 
     server = NBN_GameClient_CreateServerConnection(NULL);

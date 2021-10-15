@@ -30,7 +30,7 @@ function Host(protocol) {
     this.clients = {}
 }
 
-Host.prototype.connect = function(host, port) {
+Host.prototype.connect = function (host, port) {
     return new Promise((resolve, reject) => {
         const uri = `ws://${host}:${port}`
 
@@ -46,7 +46,7 @@ Host.prototype.connect = function(host, port) {
 
                 this.connected = false
 
-                this.onClosed()
+                // this.onClosed()
             } else {
                 this.logger.error('Connection failed')
 
@@ -61,35 +61,35 @@ Host.prototype.connect = function(host, port) {
 
             // Request a new room creation
             this.ws.send(JSON.stringify({ type: 'create_room' }))
-            
+
             clearTimeout(timeoutId)
         }
 
         this.ws.onmessage = (ev) => {
             this.logger.info('Received room server message: %s', ev.data)
 
-	    const msg = JSON.parse(ev.data)
+            const msg = JSON.parse(ev.data)
 
             if (msg['type'] == 'create_room') {
-	        if (msg['status'] == 'ok') {
-		    const roomId = msg['room_id']
+                if (msg['status'] == 'ok') {
+                    const roomId = msg['room_id']
 
                     this.logger.info('Room created: %s', roomId)
 
-		    this.ws.onmessage = (ev) => { handleRoomMessage(this, ev.data) }
+                    this.ws.onmessage = (ev) => { handleRoomMessage(this, ev.data) }
                     resolve(roomId)
-		}
-		else {
+                }
+                else {
                     this.logger.error('Failed to create room')
 
-		    reject()
-		}
-	    }
-	    else {
+                    reject()
+                }
+            }
+            else {
                 this.logger.error('Received an unexpected message')
 
-		reject()
-	    }
+                reject()
+            }
         }
 
         const timeoutId = setTimeout(() => {
@@ -101,43 +101,45 @@ Host.prototype.connect = function(host, port) {
 }
 
 function handleRoomMessage(host, data) {
+    host.logger.info(`Received room message: %s`, data)
+
     const msg = JSON.parse(data)
 
     if (msg['type'] == 'client_joined') {
-       const client_id = msg['client_id']
+        const client_id = msg['client_id']
 
-       // ignore message if a client with this id already exists
-       if (client_id in host.clients)
-           return
+        // ignore message if a client with this id already exists
+        if (client_id in host.clients)
+            return
 
-       const connection = new Connection(client_id, host.ws)
+        const connection = new Connection(client_id, host.ws)
 
-       host.logger.info('New client joined (id: %d)', connection.id)
+        host.logger.info('New client joined (id: %d)', connection.id)
 
-       host.clients[client_id] = connection
-       host.onConnection(connection) 
+        host.clients[client_id] = connection
+        host.onConnection(connection)
     }
     else if (msg['type'] == 'client_left') {
-       const client_id = msg['client_id']
+        const client_id = msg['client_id']
 
-       // ignore message if the client does not exist
-       if (!(client_id in host.clients))
-           return
+        // ignore message if the client does not exist
+        if (!(client_id in host.clients))
+            return
 
-       connection = host.connections[client_id]
+        connection = host.clients[client_id]
 
-       connection.onClosed()
-       delete host.connections[client_id]
+        connection.onClosed()
+        delete host.clients[client_id]
     } else if (msg['type'] == 'signaling') {
         const client_id = msg['client_id']
 
-       // ignore message if the client does not exist
-       if (!(client_id in host.clients))
-           return
+        // ignore message if the client does not exist
+        if (!(client_id in host.clients))
+            return
 
-       connection = host.connections[client_id]
+        connection = host.clients[client_id]
 
-       connection.onMessageReceived(msg['data']) 
+        connection.onMessageReceived(msg['data'])
     }
 }
 
