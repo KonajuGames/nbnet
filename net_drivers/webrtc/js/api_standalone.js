@@ -23,10 +23,11 @@ freely, subject to the following restrictions:
 // --- Game server API ---
 
 mergeInto(LibraryManager.library, {
-    __js_game_server_init: function (protocol_id, use_https, key_pem, cert_pem) {
+    __js_game_server_init: function (port, protocol_id, use_https, key_pem, cert_pem) {
         const nbnet = require('nbnet')
 
         const signalingServer = new nbnet.Standalone.SignalingServer(
+            port,
             protocol_id,
             use_https ? { https: true, key: UTF8ToString(key_pem), cert: UTF8ToString(cert_pem) } : {}
         )
@@ -34,9 +35,9 @@ mergeInto(LibraryManager.library, {
         this.gameServer = new nbnet.GameServer(signalingServer)
     },
 
-    __js_game_server_start: function (port) {
+    __js_game_server_start: function () {
         return Asyncify.handleSleep(function (wakeUp) {
-            this.gameServer.start(port).then(() => {
+            this.gameServer.start().then(() => {
                 wakeUp(0)
             }).catch(_ => {
                 wakeUp(-1)

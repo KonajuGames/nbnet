@@ -23,22 +23,24 @@ freely, subject to the following restrictions:
 const Connection = require('./connection.js')
 const loggerFactory = require('../logger.js')
 
-function Host(protocol) {
+function Host(host, port, protocol) {
+    this.host = host
+    this.port = port
     this.protocol = protocol
     this.logger = loggerFactory.createLogger('RoomHost')
     this.connected = false
     this.clients = {}
 }
 
-Host.prototype.connect = function (host, port) {
+Host.prototype.start = function () {
     return new Promise((resolve, reject) => {
-        const uri = `ws://${host}:${port}`
+        const uri = `ws://${this.host}:${this.port}`
 
         this.logger.info(`Connecting to room server at ${uri} (protocol: %s)...`, this.protocol)
 
         const WebSocket = require('websocket').w3cwebsocket
 
-        this.ws = new WebSocket(uri, this.protocol, `http://${host}:${port}`)
+        this.ws = new WebSocket(uri, this.protocol, `http://${this.host}:${this.port}`)
 
         this.ws.onclose = (ev) => {
             if (this.connected) {
@@ -141,6 +143,11 @@ function handleRoomMessage(host, data) {
 
         connection.onMessageReceived(msg['data'])
     }
+}
+
+Host.prototype.isSecure = function() {
+    // TODO
+    return false
 }
 
 module.exports = Host

@@ -31,7 +31,7 @@ function GameServer(signalingServer) {
     this.logger = loggerFactory.createLogger('GameServer')
 }
 
-GameServer.prototype.start = function(port) {
+GameServer.prototype.start = function() {
     if (this.signalingServer.isSecure()) {
         this.logger.info('Starting (HTTPS is enabled)...')
     } else {
@@ -41,7 +41,7 @@ GameServer.prototype.start = function(port) {
     return new Promise((resolve, reject) => {
         this.signalingServer.onConnection = (connection) => { handleConnection(this, connection) }
 
-        this.signalingServer.start(port).then(() => {
+        this.signalingServer.start().then(() => {
             this.logger.info('Started')
 
             resolve()
@@ -109,7 +109,9 @@ function handleConnection(gameServer, connection) {
     connection.onMessageReceived = (msg) => {
         gameServer.logger.info('Received signaling message for connection %s: %s', connection.id, msg)
 
-        peer.notifySignalingData(JSON.parse(msg))
+        const data = (typeof myVar === 'string') ? JSON.parse(msg) : msg;
+
+        peer.notifySignalingData(data)
     }
 
     connection.onClosed = () => {

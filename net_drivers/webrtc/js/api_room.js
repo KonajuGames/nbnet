@@ -23,7 +23,7 @@ freely, subject to the following restrictions:
 // --- Game server API ---
 
 mergeInto(LibraryManager.library, {
-    __js_game_server_init: function () {
+    __js_game_server_init: function (hostPtr, port) {
         let nbnet
 
         if (typeof window === 'undefined') {
@@ -34,13 +34,13 @@ mergeInto(LibraryManager.library, {
             nbnet = Module.nbnet
         }
 
-        this.host = new nbnet.Room.Host('room_server-protocol')
+        this.host = new nbnet.Room.Host(UTF8ToString(hostPtr), port, 'room_server-protocol')
         this.gameServer = new nbnet.GameServer(this.host)
     },
 
-    __js_game_server_start: function (hostPtr, port) {
+    __js_game_server_start: function () {
         return Asyncify.handleSleep(function (wakeUp) {
-            this.host.connect(UTF8ToString(hostPtr), port).then(() => {
+            this.gameServer.start().then(() => {
                 wakeUp(0)
             }).catch((err) => {
                 wakeUp(-1)

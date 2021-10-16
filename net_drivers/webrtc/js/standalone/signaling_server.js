@@ -1,14 +1,15 @@
 const Connection = require('./connection.js')
 const loggerFactory = require('../logger.js')
 
-function SignalingServer(protocol_id, options) {
+function SignalingServer(port, protocol_id, options) {
+    this.port = port
     this.protocol = protocol_id.toString()
     this.logger = loggerFactory.createLogger('StandaloneSignalingServer')
     this.options = options
 }
 
-SignalingServer.prototype.start = function(port) {
-    return new Promise((resolve, reject) => {
+SignalingServer.prototype.start = function() {
+    return new Promise((resolve, _) => {
         this.logger.info('Starting (protocol: %s)...', this.protocol)
 
         var server
@@ -38,8 +39,8 @@ SignalingServer.prototype.start = function(port) {
             }
         })
 
-        server.listen(port, () => {
-            this.logger.info('Started, listening on port %d...', port);
+        server.listen(this.port, () => {
+            this.logger.info('Started, listening on port %d...', this.port);
 
             resolve()
         })

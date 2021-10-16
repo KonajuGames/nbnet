@@ -104,7 +104,7 @@ Client.prototype.send = function (data) {
 }
 
 function handleRoomMessage(client, data) {
-    const msg = JSON.parse(ev.data)
+    const msg = JSON.parse(data)
 
     if (msg['type'] == 'signaling') {
         client.onDataReceived(msg['data'])
